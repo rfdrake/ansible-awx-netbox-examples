@@ -1,0 +1,69 @@
+---
+- name: "Generate Router Configuration Files"
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+    - name: "get device (api)"
+      ansible.builtin.uri:
+        url: "{{ netbox_url }}/api/dcim/devices/?id={{ device_id }}"
+        validate_certs: false
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+      register: get_device_api
+
+    - name: "get primary interface (api)"
+      ansible.builtin.uri:
+        url: "{{ netbox_url }}/api/ipam/ip-addresses/?address={{ primary_ip4 }}"
+        validate_certs: false
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+      register: get_address_api
+
+    - name: "get interfaces (api)"
+      ansible.builtin.uri:
+        url: "{{ netbox_url }}/api/dcim/interfaces/?id={{ get_address_api.json.results[0].assigned_object_id }}"
+        validate_certs: false
+        headers:
+          Authorization: "Token {{ netbox_token }}"
+      register: get_interface_api
+
+    - name: "Set mac address"
+      set_fact:
+        mac_address: "{{ get_interface_api.json.results[0].mac_address | regex_replace('([0-9][0-9]):([0-9][0-9]):([0-9][0-9]):([0-9][0-9]):([0-9][0-9]):([0-9][0-9])', '\\1\\2.\\3\\4.\\5\\6') }}"
+      when: get_interface_api.json.results[0].mac_address != None
+
+    - name: "Set variables"
+      set_fact:
+        model: "{{ get_device_api.json.results[0].device_type.display }}"
+        hostname: "{{ get_device_api.json.results[0].name }}"
+        location: "{{ get_device_api.json.results[0].site.display }}"
+        default_gateway: "{{ primary_ip4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
+        ip_address: "{{ primary_ip4 | ansible.utils.ipaddr('address') }}"
+        subnet_mask: "{{ primary_ip4 | ansible.utils.ipaddr('netmask') }}"
+        role: "{{  get_device_api.json.results[0].device_role.display }}"
+        context: "{{ get_device_api.json.results[0].config_context }}"
+
+    - name: "Set filename with mac"
+      set_fact:
+        filename: "{{ model }}-Switch{{ mac_address }}.cfg"
+      when: mac_address is defined
+
+    - name: "Set filename with hostname"
+      set_fact:
+        filename: "{{ hostname }}.cfg"
+      when: mac_address is not defined
+
+    - name: "Run role Nexus"
+      include_role:
+        name: nexus
+      when: get_device_api.json.results[0].manufacturer.name == 'Cisco'
+
+    - name: "Run role Brocade"
+      include_role:
+        name: icx
+      when: get_device_api.json.results[0].manufacturer.name == 'Brocade'
+
+
+

@@ -1,0 +1,8 @@
+---
+- name: Generate Configuration Files
+  template: src=main.j2 dest=/tmp/{{filename}}
+
+- name: Copy configuration file to template server
+  command: "scp -o StrictHostKeyChecking=no /tmp/{{filename}} {{ remote_server_path }}"
+
+

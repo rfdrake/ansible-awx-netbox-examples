@@ -1,0 +1,10 @@
+plugin: netbox.netbox.nb_inventory
+api_endpoint: <endpoint>
+token: <token>
+validate_certs: false
+config_context: false
+group_by: [ "site_group", "tags" ]
+device_query_filters:
+  - has_primary_ip: 'true'
+  - manufacturer: 'brocade'
+cache: true
