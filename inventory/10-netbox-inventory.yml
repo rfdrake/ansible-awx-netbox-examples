@@ -1,6 +1,6 @@
 plugin: netbox.netbox.nb_inventory
-api_endpoint: <endpoint>
-token: <token>
+api_endpoint: "{{ lookup('env', 'NETBOX_URL') }}"
+token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
 validate_certs: false
 config_context: false
 group_by: [ "site_group", "tags" ]
