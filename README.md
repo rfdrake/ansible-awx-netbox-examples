@@ -121,3 +121,19 @@ The last step in my example is an scp to push the template to another server.
 The reason for this is extracting the template from the execution environment
 in awx is a bit of a challenge.  We could mount a custom filesystem into the
 container (via persistent volume), but it's easier to send it out via scp.
+
+# Running this without AWX (python and ansible requirements)
+
+If you're running this in ansible CLI without the benefits of AWX, or if
+you're not using my custom execution environment, or if you are
+using a different management system like rundeck you might need to modify
+things a bit.
+
+There are a couple of unstated dependencies which I found when trying to test
+this in other environments.
+
+
+```
+ansible-galaxy collections install netbox.netbox community.network ansible.utils
+pip install pynetbox packaging pytz netaddr
+```
