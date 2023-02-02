@@ -4,5 +4,6 @@
 
 - name: Copy configuration file to template server
   command: "scp -o StrictHostKeyChecking=no /tmp/{{filename}} {{ remote_server_path }}"
+  when: push_configs
 
 
