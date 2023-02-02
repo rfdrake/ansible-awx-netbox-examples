@@ -3,6 +3,10 @@
   hosts: localhost
   connection: local
   gather_facts: no
+  vars:
+    vendor_roles:
+      Cisco: "nexus"
+      Brocade: "icx"
 
   tasks:
     - name: "get device (api)"
@@ -36,6 +40,7 @@
 
     - name: "Set variables"
       set_fact:
+        vendor: "{{ get_device_api.json.results[0].device_type.manufacturer.name }}"
         model: "{{ get_device_api.json.results[0].device_type.display }}"
         hostname: "{{ get_device_api.json.results[0].name }}"
         location: "{{ get_device_api.json.results[0].site.display }}"
@@ -55,15 +60,7 @@
         filename: "{{ hostname }}.cfg"
       when: mac_address is not defined
 
-    - name: "Run role Nexus"
+    - name: "Run role"
       include_role:
-        name: nexus
-      when: get_device_api.json.results[0].manufacturer.name == 'Cisco'
-
-    - name: "Run role Brocade"
-      include_role:
-        name: icx
-      when: get_device_api.json.results[0].manufacturer.name == 'Brocade'
-
-
+        name: "{{ vendor_roles[vendor] }}"
 
