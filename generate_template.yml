@@ -40,10 +40,10 @@
 
     - name: "Set variables"
       set_fact:
-        filename: "{{ hostname }}.cfg"
         vendor: "{{ get_device_api.json.results[0].device_type.manufacturer.name }}"
         model: "{{ get_device_api.json.results[0].device_type.display }}"
         hostname: "{{ get_device_api.json.results[0].name }}"
+        filename: "{{ get_device_api.json.results[0].name }}.cfg"
         location: "{{ get_device_api.json.results[0].site.display }}"
         default_gateway: "{{ primary_ip4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
         ip_address: "{{ primary_ip4 | ansible.utils.ipaddr('address') }}"
