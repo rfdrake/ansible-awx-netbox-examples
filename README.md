@@ -12,12 +12,52 @@ This is an example of using netbox as an inventory source.
 Because of reasons (https://github.com/ansible/awx/issues/223 and
 https://github.com/ansible/awx/issues/137) ansible doesn't have good support
 for vaults in inventory sources.  There are a couple of potential workarounds.
-The best one is probably to store the vault password inside a file in your
-execution environment.
+
+First you can define a custom credential type in AWX, which will inject the
+variables using either environment variables, or extra_vars.
+
+This has the advantage of not storing any passwords in your source repository,
+but the disadvantage of the passwords not being encrypted within the AWX ->
+ansible environment.  This is probably not a concern, and this is probably the
+best option if you can't use a vault.
+
+Another possibility is to store your ansible vault password in a file inside
+the execution environment.  The downside to this is that your vault password
+will be unencrypted in the container inside your docker registry.
 
 Another option is to just hardcode the netbox token in your inventory file,
 but that isn't good because you will need to commit this repo to an SCM to
 import it to AWX, so you should try to avoid plaintext passwords.
+
+## Creating a custom credential type
+
+Name: Netbox
+
+Input Configuration:
+```
+fields:
+  - type: string
+    id: netbox_url
+    label: Netbox URL
+
+  - type: string
+    id: netbox_token
+    label: "Netbox Token"
+    secret: True
+required:
+  - netbox_url
+  - netbox_token
+```
+
+Injector Configuration:
+```
+extra_vars:
+  netbox_url: '{{ netbox_url }}'
+  netbox_token: '{{ netbox_token }}'
+env:
+  NETBOX_URL: '{{ netbox_url }}'
+  NETBOX_TOKEN: '{{ netbox_token }}'
+```
 
 # Adding a new device with an IP from a range
 
