@@ -40,6 +40,7 @@
 
     - name: "Set variables"
       set_fact:
+        filename: "{{ hostname }}.cfg"
         vendor: "{{ get_device_api.json.results[0].device_type.manufacturer.name }}"
         model: "{{ get_device_api.json.results[0].device_type.display }}"
         hostname: "{{ get_device_api.json.results[0].name }}"
@@ -49,16 +50,6 @@
         subnet_mask: "{{ primary_ip4 | ansible.utils.ipaddr('netmask') }}"
         role: "{{  get_device_api.json.results[0].device_role.display }}"
         context: "{{ get_device_api.json.results[0].config_context }}"
-
-    - name: "Set filename with mac"
-      set_fact:
-        filename: "{{ model }}-Switch{{ mac_address }}.cfg"
-      when: mac_address is defined
-
-    - name: "Set filename with hostname"
-      set_fact:
-        filename: "{{ hostname }}.cfg"
-      when: mac_address is not defined
 
     - name: "Run role"
       include_role:

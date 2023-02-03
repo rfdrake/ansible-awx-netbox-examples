@@ -1,4 +1,9 @@
 ---
+- name: "Set filename with mac"
+  set_fact:
+    filename: "{{ model }}-Switch{{ mac_address }}.cfg"
+  when: mac_address is defined
+
 - name: Generate Configuration Files
   template: src=main.j2 dest=/tmp/{{filename}}
 
