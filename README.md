@@ -96,8 +96,8 @@ not include objects that are attached to it.  For example, a device change
 will send the device data, but it won't include interfaces associated with it.
 
 So if you need information from a device interface, like a mac address, then
-you need to get it a different way.  One way is to have the playbook request
-the data from netbox.
+you need to get it a different way.  This is why the playbook makes separate requests
+for interface data from netbox.
 
 ## What the webhook looks like on netbox side
 
@@ -132,10 +132,41 @@ returns isn't as useful as the direct API queries.  Some of the links are not
 followed, so while the devices API gives you the "site" object attached to the
 device, the netbox_device ansible command would just give you the site id.
 
+I later realized you can do some of this with nb_lookup for a more ansible-ish
+way to do things.  I've mixed both in the example so that you can see how it
+works.  The downside being that it requires another python dependency for
+jmespath.
+
+## Notes about configuration contexts
+
+In some examples you'll find "context.trunk_ports" and "context.uplink_port".
+These are defined as JSON inside netbox configuration contexts and associated
+with different switch models.  You can have a more specific configuration
+override less specific ones.  So maybe in all switch models from a certain
+vendor, the management port is me0.  You can specify that in a context
+associated with the manufacturer, then put more specific information in the
+individual devices.  For another example, we can specify that a 12 port
+switch has 11 trunk_ports and 1 uplink_port, or many other combinations.
+
+Here is an edited example from a Nexus 3548P-10G
+
+```
+{
+    "management_interface": "mgmt0",
+    "trunk_ports": [
+        "e1/1-44,46,48"
+    ],
+    "uplink_port": "Ethernet1/47"
+}
+```
+
 ## Other notes
 
-I didn't include a full example of the task, so this won't work by default.
-There are a bunch of include files that are custom.
+I'm including a full example of a template generator for Nexus switches.  This
+does not include variables that you would need to define in your environment,
+like TACACS servers, NTP servers, SNMP communities, etc.  You can define these
+in your configuration contexts, or you can put them into ansible vault or
+wherever you wish.
 
 # AWX quirks
 
@@ -170,10 +201,9 @@ using a different management system like rundeck you might need to modify
 things a bit.
 
 There are a couple of unstated dependencies which I found when trying to test
-this in other environments.
-
+this in other environments.  Here is a cli list of dependencies needed.
 
 ```
 ansible-galaxy collections install netbox.netbox community.network ansible.utils
-pip install pynetbox packaging pytz netaddr
+pip install pynetbox packaging pytz netaddr jmespath
 ```

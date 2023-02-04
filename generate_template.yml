@@ -17,20 +17,18 @@
           Authorization: "Token {{ netbox_token }}"
       register: get_device_api
 
+    - name: "get interfaces (nb_lookup)"
+      set_fact:
+        all_interfaces: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses', api_filter='device_id=' ~ device_id, api_endpoint=netbox_url, token=netbox_token) }}"
+
     - name: "get primary interface (api)"
       ansible.builtin.uri:
-        url: "{{ netbox_url }}/api/ipam/ip-addresses/?address={{ primary_ip4 }}"
+        url: "{{ netbox_url }}/api/dcim/interfaces/?id={{ get_address_id }}"
         validate_certs: false
         headers:
           Authorization: "Token {{ netbox_token }}"
-      register: get_address_api
-
-    - name: "get interfaces (api)"
-      ansible.builtin.uri:
-        url: "{{ netbox_url }}/api/dcim/interfaces/?id={{ get_address_api.json.results[0].assigned_object_id }}"
-        validate_certs: false
-        headers:
-          Authorization: "Token {{ netbox_token }}"
+      vars:
+        get_address_id: "{{ all_interfaces | json_query('[?value.address == `' ~ primary_ip4 ~ '`].value.assigned_object_id | [0]') }}"
       register: get_interface_api
 
     - name: "Set mac address"
@@ -47,9 +45,11 @@
         location: "{{ get_device_api.json.results[0].site.display }}"
         default_gateway: "{{ primary_ip4 | ansible.utils.ipaddr('1') | ansible.utils.ipaddr('address') }}"
         ip_address: "{{ primary_ip4 | ansible.utils.ipaddr('address') }}"
+        router_id: "{{ primary_ip4 | ansible.utils.ipaddr('address') }}"
         subnet_mask: "{{ primary_ip4 | ansible.utils.ipaddr('netmask') }}"
         role: "{{  get_device_api.json.results[0].device_role.display }}"
         context: "{{ get_device_api.json.results[0].config_context }}"
+        source_interface:  "{{ all_interfaces | json_query('[?value.address == `' ~ primary_ip4 ~ '`].value.assigned_object.name | [0]') }}"
 
     - name: "Run role"
       include_role:

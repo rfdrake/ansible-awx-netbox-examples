@@ -1,0 +1,4 @@
+---
+push_configs: True
+netbox_url: "{{ lookup('env', 'NETBOX_URL') }}"
+netbox_token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
