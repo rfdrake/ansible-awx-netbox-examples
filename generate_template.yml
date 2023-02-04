@@ -19,7 +19,7 @@
 
     - name: "get interfaces (nb_lookup)"
       set_fact:
-        all_interfaces: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses', api_filter='device_id=' ~ device_id, api_endpoint=netbox_url, token=netbox_token) }}"
+        all_interfaces: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses', api_filter='device_id=' ~ device_id, api_endpoint=netbox_url, token=netbox_token, validate_certs=False) }}"
 
     - name: "get primary interface (api)"
       ansible.builtin.uri:
