@@ -33,7 +33,7 @@
 
     - name: "Set mac address"
       set_fact:
-        mac_address: "{{ get_interface_api.json.results[0].mac_address | regex_replace('([0-9][0-9]):([0-9][0-9]):([0-9][0-9]):([0-9][0-9]):([0-9][0-9]):([0-9][0-9])', '\\1\\2.\\3\\4.\\5\\6') }}"
+        mac_address: "{{ get_interface_api.json.results[0].mac_address.lower() | regex_replace('([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2}):([0-9a-f]{2})', '\\1\\2.\\3\\4.\\5\\6') }}"
       when: get_interface_api.json.results[0].mac_address != None
 
     - name: "Set variables"
