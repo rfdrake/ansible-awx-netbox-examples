@@ -101,7 +101,7 @@ for interface data from netbox.
 
 ## What the webhook looks like on netbox side
 
-1.  Content types is set to DCIM > Device
+1.  Content types is set to "DCIM > Device" and "DCIM > Interface"
 2.  Events is set to "Creations" and "Updates"
 3.  URL is https://<awx server>/api/v2/job_templates/<awx template id>/launch/
 4.  HTTP Method:  POST
@@ -112,8 +112,8 @@ for interface data from netbox.
 ```
 {
   "extra_vars": {
-        "device_id": "{{ data['id'] }}",
-        "primary_ip4": "{{ data['primary_ip4']['display'] }}",
+        "webhook_data": {{ data|tojson }},
+        "webhook_model": "{{ model }}",
         "username": "{{ username }}"
   }
 }

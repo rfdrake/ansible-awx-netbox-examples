@@ -9,6 +9,10 @@
       Brocade: "icx"
 
   tasks:
+    - name: "set device_id"
+      set_fact:
+        device_id: "{{ (webhook_model == 'interface')|ternary(webhook_data['device']['id'], webhook_data['id']) }}"
+
     - name: "get device (api)"
       ansible.builtin.uri:
         url: "{{ netbox_url }}/api/dcim/devices/?id={{ device_id }}"
@@ -17,7 +21,15 @@
           Authorization: "Token {{ netbox_token }}"
       register: get_device_api
 
-    - name: "get interfaces (nb_lookup)"
+    - name: "abort if primary_ip4 not set"
+      fail: msg="Please add primary_ip4"
+      when: get_device_api.json.results[0].primary_ip4 is not defined
+
+    - name: "primary_ip4 fact"
+      set_fact:
+        primary_ip4: "{{ get_device_api.json.results[0].primary_ip4.display }}"
+
+    - name: "get all interfaces (nb_lookup)"
       set_fact:
         all_interfaces: "{{ query('netbox.netbox.nb_lookup', 'ip-addresses', api_filter='device_id=' ~ device_id, api_endpoint=netbox_url, token=netbox_token, validate_certs=False) }}"
 
