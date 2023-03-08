@@ -101,10 +101,63 @@ for interface data from netbox.
 
 ## What the webhook looks like on netbox side
 
-1.  Content types is set to "DCIM > Device" and "DCIM > Interface"
+This is going to be split into two different playbooks/webhooks.  The reason
+being that if you do it on "Create" and "Update" then netbox will send
+webhooks for every interface when a device is created.  This can cause
+amplification to 3,000 webhooks when creating lots of devices.
+
+### DCIM > Device
+
+1.  Content types is set to "DCIM > Device"
 2.  Events is set to "Creations" and "Updates"
 3.  URL is https://<awx server>/api/v2/job_templates/<awx template id>/launch/
-4.  HTTP Method:  POST
+4.  HTTP Method: POST
+5.  HTTP content type: application/json
+6.  Additional headers: echo "Authorization: Basic $(echo -n "user:pass" | base64)"
+7.  Body Template looks like the following:
+
+```
+{
+  "extra_vars": {
+        "webhook_data": {{ data|tojson }},
+        "webhook_model": "{{ model }}",
+        "username": "{{ username }}"
+  }
+}
+```
+8. Conditional looks like the following.  I also restricted the webhook to
+only fire on device types that we are making a template for.
+```
+{
+    "and": [
+        {
+            "attr": "primary_ip",
+            "negate": true,
+            "value": null
+        },
+        {
+            "attr": "device_type.manufacturer.name",
+            "op": "in",
+            "value": [
+                "Raisecom",
+                "Cisco",
+                "Brocade",
+                "Mikrotik"
+            ]
+        }
+    ]
+}
+```
+
+### DCIM > Interface
+
+The URL for the second webhook must be different.  I didn't really make use of
+this because it fires more than I want, but I'm leaving it here as an example.
+
+1.  Content types is set to "DCIM > Interface"
+2.  Events is set to "Updates"
+3.  URL is https://<awx server>/api/v2/job_templates/<awx template id>/launch/
+4.  HTTP Method: POST
 5.  HTTP content type: application/json
 6.  Additional headers: echo "Authorization: Basic $(echo -n "user:pass" | base64)"
 7.  Body Template looks like the following:
