@@ -80,6 +80,46 @@ status: 'Active'
 ip_range: '10.1.2.0/24'
 ```
 
+# Adding multiple devices with IP and mac address
+
+This uses the playbook devices.yml
+
+This playbook shows how to add many devices with a YAML source file.  Our method of generating this config is to
+make a tab separated file that looks like the following, then use https://www.convertcsv.com/csv-to-yaml.htm to change it to YAML.
+
+```
+name	serial	ip6	mac	ip4	manufacturer	device_type	comments	status	device_role	site
+sw1-test-network			abcdabcdab01	10.16.11.11/24	raisecom	iscom2624g-4c-pwr-ac		staged	Switch	test-network
+sw2-test-network			abcdabcdab02	10.16.11.12/24	raisecom	iscom2624g-4c-pwr-ac		staged	Switch	test-network
+```
+
+Here is an example of the required YAML config:
+
+```
+devices:
+  - name: sw1-test-network
+    serial: null
+    ip6: null
+    mac: abcdabcdab01
+    ip4: 10.16.11.11/24
+    manufacturer: raisecom
+    device_type: iscom2624g-4c-pwr-ac
+    comments: null
+    status: staged
+    device_role: Switch
+    site: test-network
+  - name: sw2-test-network
+    serial: null
+    ip6: null
+    mac: abcdabcdab02
+    ip4: 10.16.11.12/24
+    manufacturer: raisecom
+    device_type: iscom2624g-4c-pwr-ac
+    comments: null
+    status: staged
+    device_role: Switch
+    site: test-network
+```
 
 # Generating templates in AWX from a Netbox webhook
 
