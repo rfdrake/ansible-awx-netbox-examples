@@ -182,7 +182,7 @@ only fire on device types that we are making a template for.
                 "Raisecom",
                 "Cisco",
                 "Brocade",
-                "Mikrotik"
+                "MikroTik"
             ]
         }
     ]
