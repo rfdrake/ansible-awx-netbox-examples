@@ -247,7 +247,7 @@ Here is an edited example from a Nexus 3548P-10G
 {
     "management_interface": "mgmt0",
     "trunk_ports": [
-        "e1/1-44,46,48"
+        "e1/1-44, e1/46, e1/48"
     ],
     "uplink_port": "Ethernet1/47"
 }
