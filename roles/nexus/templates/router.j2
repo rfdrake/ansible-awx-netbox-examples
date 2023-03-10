@@ -148,6 +148,7 @@ logging source-interface {{ source_interface }}
 snmp source-interface traps {{ source_interface }}
 snmp source-interface informs {{ source_interface }}
 snmp location {{ location }}
+snmp community {{ global.snmp_community_string }}
 snmp community {{ global.snmp_community_string }} use-acl allow_snmp_ro
 snmp contact {{ global.snmp_contact }}
 ! ntp
