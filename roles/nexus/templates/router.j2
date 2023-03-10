@@ -69,7 +69,7 @@ interface {{ int.value.assigned_object.name }}
   no shut
 {% if int.value.assigned_object.name == context.uplink_port %}
   description Uplink
-  route-only
+  no switchport
   ip ospf network point-to-point
   no ip ospf passive-interface
   ip ospf mtu-ignore
