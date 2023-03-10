@@ -65,6 +65,9 @@ interface {{ int }}
 {% for int in all_interfaces -%}
 {% if int.value.assigned_object.name != 'Default Interface' %}
 interface {{ int.value.assigned_object.name }}
+{% if int.value.assigned_object.name is match("E.*") %}
+  no switchport
+{% endif %}
   ip address {{ int.value.address }}
   no shut
 {% if int.value.assigned_object.name == context.uplink_port %}
