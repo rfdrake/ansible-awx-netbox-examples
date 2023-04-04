@@ -13,8 +13,9 @@ Because of reasons (https://github.com/ansible/awx/issues/223 and
 https://github.com/ansible/awx/issues/137) ansible doesn't have good support
 for vaults in inventory sources.  There are a couple of potential workarounds.
 
-First you can define a custom credential type in AWX, which will inject the
-variables using either environment variables, or extra_vars.
+First you can define a custom credential type in AWX (described below in the
+next section), which will inject the variables using either environment variables,
+or extra_vars.
 
 This has the advantage of not storing any passwords in your source repository,
 but the disadvantage of the passwords not being encrypted within the AWX ->
