@@ -122,6 +122,28 @@ devices:
     site: test-network
 ```
 
+# Update to the above, can use CLI if needed (using the yq program)
+
+I should note that as of this writing I have not tested the following commands
+together.  Our usual workflow was to put the output YAML into ansible AWX and
+execute the playbook there.  I will update this once I verify the commands
+work.
+
+Install the yq program from https://github.com/mikefarah/yq/releases
+
+```
+name,serial,ip6,mac,ip4,manufacturer,device_type,comments,status,device_role,site
+sw1-test-network,,,abcdabcdab01,10.16.11.11/24,raisecom,iscom2624g-4c-pwr-ac,,staged,Switch,test-network
+sw2-test-network,,,abcdabcdab02,10.16.11.12/24,raisecom,iscom2624g-4c-pwr-ac,,staged,Switch,test-network
+```
+
+    (echo devices: ; yq -p=csv -o=yaml input.csv) > device-list.yml
+
+This also works with tsv for tab seperated content.
+
+    time ansible-playbook -e @device-list.yml devices.yml
+
+
 # Generating templates in AWX from a Netbox webhook
 
 This uses the playbook generate_template.yml
