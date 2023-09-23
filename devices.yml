@@ -8,6 +8,7 @@
     ansible_async_dir: /dev/shm
     netbox_token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
     netbox_url: "{{ lookup('env', 'NETBOX_URL') }}"
+    default_interface: "Default Interface"
 
   tasks:
     - name: add device
@@ -31,6 +32,19 @@
         loop_var: "dev"
       with_items: "{{ devices }}"
 
+    - name: add_interface
+      netbox.netbox.netbox_interface:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+          device: "{{ dev['name'] }}"
+          name: "{{ dev['interface'] | default(default_interface) }}"
+      loop_control:
+        label: "{{ dev['name'] }}"
+        loop_var: "dev"
+      with_items: "{{ devices }}"
+
     - name: add_ip_address
       netbox.netbox.netbox_ip_address:
         netbox_url: "{{ netbox_url }}"
@@ -39,7 +53,7 @@
         data:
           address: "{{ dev['ip4'] }}"
           assigned_object:
-            name: Default Interface
+            name: "{{ dev['interface'] | default(default_interface) }}"
             device: "{{ dev['name'] }}"
       loop_control:
         label: "{{ dev['name'] }}"
@@ -54,7 +68,7 @@
         validate_certs: false
         data:
           device: "{{ dev['name'] }}"
-          name: Default Interface
+          name: "{{ dev['interface'] | default(default_interface) }}"
           mac_address: "{{ dev['mac'] }}"
       loop_control:
         label: "{{ dev['name'] }}"
@@ -84,7 +98,7 @@
         data:
           address: "{{ dev['ip6'] }}"
           assigned_object:
-            name: Default Interface
+            name: "{{ dev['interface'] | default(default_interface) }}"
             device: "{{ dev['name'] }}"
       loop_control:
         label: "{{ dev['name'] }}"
