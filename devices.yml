@@ -40,6 +40,8 @@
         data:
           device: "{{ dev['name'] }}"
           name: "{{ dev['interface'] | default(default_interface) }}"
+          # this complicates the "add device" thing
+          type: Virtual
       loop_control:
         label: "{{ dev['name'] }}"
         loop_var: "dev"
@@ -51,7 +53,7 @@
         netbox_token: "{{ netbox_token }}"
         validate_certs: false
         data:
-          address: "{{ dev['ip4'] }}"
+          prefix: "{{ dev['ip4'] }}"
           assigned_object:
             name: "{{ dev['interface'] | default(default_interface) }}"
             device: "{{ dev['name'] }}"
@@ -60,6 +62,8 @@
         loop_var: "dev"
       with_items: "{{ devices }}"
       when: dev['ip4'] != None
+      tags:
+        - add_ip_address
 
     - name: add_mac_address
       netbox.netbox.netbox_device_interface:
