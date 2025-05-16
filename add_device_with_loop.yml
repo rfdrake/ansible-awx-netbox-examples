@@ -1,0 +1,103 @@
+---
+    - name: "add device {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_device:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+            name: "{{ dev['name'] }}"
+            site: "{{ dev['site'] }}"
+            device_type: "{{ dev['device_type'] }}"
+            serial: "{{ dev['serial'] | default(omit,true) }}"
+            device_role: "{{ dev['device_role'] }}"
+            comments: "{{ dev['comments'] | default(omit,true) }}"
+            status: "{{ dev['status'] }}"
+            custom_fields:
+              origin: "{{ dev['cf_origin'] | default(omit,true) }}"
+              bbsites_id: "{{ dev['cf_bbsites_id'] | default(omit,true) }}"
+              ansible_playbook_version: "1.0.0-2"
+        state: present
+      ignore_errors: True
+
+    - name: "add_interface {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_device_interface:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+          device: "{{ dev['name'] }}"
+          name: "{{ dev['interface'] | default(default_interface) }}"
+          type: Virtual
+      ignore_errors: True
+
+    - name: "add_ip_address {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_ip_address:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        state: present
+        data:
+          address: "{{ dev['ip4'] }}"
+          assigned_object:
+            name: "{{ dev['interface'] | default(default_interface) }}"
+            device: "{{ dev['name'] }}"
+      when: "'ip4' in dev"
+      ignore_errors: True
+      tags:
+        - add_ip_address
+
+    - name: "add_mac_address {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_device_interface:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+          device: "{{ dev['name'] }}"
+          name: "{{ dev['interface'] | default(default_interface) }}"
+          mac_address: "{{ dev['mac'] }}"
+      when: "'mac' in dev"
+      ignore_errors: True
+
+    - name: "set primary {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_device:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+          name: "{{ dev['name'] }}"
+          primary_ip4:
+            address: "{{ dev['ip4'] }}"
+      when: "'ip4' in dev"
+      ignore_errors: True
+
+    - name: "add ip6 {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_ip_address:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+          address: "{{ dev['ip6'] }}"
+          assigned_object:
+            name: "{{ dev['interface'] | default(default_interface) }}"
+            device: "{{ dev['name'] }}"
+      when: "'ip6' in dev"
+      ignore_errors: True
+
+    - name: "set primary_ip6 {{ dev['name'] }}"
+      #delegate_to: localhost
+      netbox.netbox.netbox_device:
+        netbox_url: "{{ netbox_url }}"
+        netbox_token: "{{ netbox_token }}"
+        validate_certs: false
+        data:
+          name: "{{ dev['name'] }}"
+          primary_ip6:
+            address: "{{ dev['ip6'] }}"
+      when: "'ip6' in dev"
+      ignore_errors: True

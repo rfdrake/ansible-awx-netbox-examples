@@ -1,0 +1,19 @@
+---
+- name: "Add devices"
+  hosts: localhost
+  connection: local
+  strategy: free
+  gather_facts: False
+  vars:
+    ansible_async_dir: /dev/shm
+    netbox_token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
+    netbox_url: "{{ lookup('env', 'NETBOX_URL') }}"
+    default_interface: "Default Interface"
+
+  tasks:
+    - name: add device loop
+      include_tasks: add_device.yml
+      loop: "{{ devices }}"
+      loop_control:
+        label: "{{ dev['name'] }}"
+        loop_var: "dev"

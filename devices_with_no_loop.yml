@@ -1,0 +1,17 @@
+---
+- name: "Add devices"
+  hosts: all
+  connection: local
+  strategy: free
+  gather_facts: False
+  vars:
+    ansible_async_dir: /dev/shm
+    netbox_token: "{{ lookup('env', 'NETBOX_TOKEN') }}"
+    netbox_url: "{{ lookup('env', 'NETBOX_URL') }}"
+    validate_certs: false
+    default_interface: "Default Interface"
+
+  tasks:
+    - name: add device
+      include_tasks: add_device.yml
+  

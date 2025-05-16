@@ -302,6 +302,14 @@ doesn't work if you're connecting to localhost and running inside of a
 container.  "connection: local" inside the playbook forces it to use local
 instead of trying to ssh.
 
+## delegate_to: localhost
+
+Most netbox commands are being executed on the box running ansible (localhost).
+So traditionally, the inventory doesn't get utilized.  This is sub-optimal because it
+won't fork for most of the playbooks.  You can get around this by sending your
+device list as the inventory, then running delegate_to: localhost which forces the task
+to run on the local machine.
+
 ## copy the template from awx to somewhere else
 
 The last step in my example is an scp to push the template to another server.
