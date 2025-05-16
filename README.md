@@ -1,3 +1,12 @@
+# Project status is unmaintained
+
+I stopped using ansible to generate configs from netbox data.  Instead I use
+the built-in templating in netbox to generate the configs.
+
+I still feel like ansible is good for router remediation when a device gets
+out of sync with the intended config, but for initial router configuration
+this is not really the approach I would take.
+
 # Overview
 
 This repository includes three examples of ways to use netbox with ansible.
